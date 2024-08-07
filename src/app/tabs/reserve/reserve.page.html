@@ -1,7 +1,20 @@
-<ion-app>
-  <ion-router-outlet id="main"></ion-router-outlet>
-<!--
-  <ion-menu side="start" contentId="main">
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="firstMenu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Reserve appointment</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="content1">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Reserve</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-menu side="start" contentId="content1" menuId="firstMenu">
     <ion-header>
       <ion-toolbar color="primary">
         <ion-title>Italian embassy</ion-title>
@@ -9,12 +22,9 @@
     </ion-header>
     <ion-content>
       <ion-list lines="none">
-        <ion-item>
-          <ion-icon name="person-circle" slot="start"></ion-icon>
-          <ion-label>My profile</ion-label>
-        </ion-item>
+
         <ion-menu-toggle>
-          <ion-item routerLink="/reserve">
+          <ion-item routerLink="/tabs/reserve">
             <ion-icon name="calendar-outline" slot="start"></ion-icon>
             <ion-label>Reserve</ion-label>
           </ion-item>
@@ -25,12 +35,9 @@
             <ion-label>My booked appointments</ion-label>
           </ion-item>
         </ion-menu-toggle>
-        <ion-item>
-          <ion-icon name="log-out" slot="start"></ion-icon>
-          <ion-label>Log out</ion-label>
-        </ion-item>
+
       </ion-list>
     </ion-content>
-  </ion-menu>-->
+  </ion-menu>
 
-</ion-app>
+</ion-content>

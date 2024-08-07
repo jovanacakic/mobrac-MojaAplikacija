@@ -15,6 +15,8 @@ import { MyAppointmentsPage } from './my-appointments.page';
     IonicModule,
     MyAppointmentsPageRoutingModule
   ],
+  exports: [
+  ],
   declarations: [MyAppointmentsPage]
 })
 export class MyAppointmentsPageModule {}

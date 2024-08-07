@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {NgForm} from "@angular/forms";
+import {AuthService} from "../auth.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-register',
@@ -8,12 +10,13 @@ import {NgForm} from "@angular/forms";
 })
 export class RegisterPage implements OnInit {
 
-  constructor() { }
+  constructor(private authService: AuthService, private router : Router) { }
 
   ngOnInit() {
   }
 
   onRegister(registerForm: NgForm) {
-
+    this.authService.login();
+    this.router.navigate(['/tabs/reserve']);
   }
 }
