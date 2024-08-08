@@ -1,43 +1,61 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="firstMenu"></ion-menu-button>
+      <!--<ion-menu-button menu="reserveMenu"></ion-menu-button>-->
+      <ion-buttons slot="start">
+        <!-- Add the back button here -->
+        <ion-back-button defaultHref="/tabs/my-appointments"></ion-back-button>
+      </ion-buttons>
     </ion-buttons>
-    <ion-title>Reserve appointment</ion-title>
+    <ion-title>Reserve Appointment</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" id="content1">
+<ion-content [fullscreen]="true" id="reserveContent">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Reserve</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <ion-menu side="start" contentId="content1" menuId="firstMenu">
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-title>Italian embassy</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <ion-list lines="none">
+  <form (ngSubmit)="onSubmit()" #reserveForm="ngForm">
+    <ion-list>
+      <!-- Select Visa Type -->
+      <ion-item>
+        <ion-label>Visa Type</ion-label>
+        <ion-select [(ngModel)]="visaType" name="visaType" required>
+          <ion-select-option value="student">Student Visa</ion-select-option>
+          <ion-select-option value="work">Work Visa</ion-select-option>
+          <ion-select-option value="tourist">Tourist Visa</ion-select-option>
+        </ion-select>
+      </ion-item>
 
-        <ion-menu-toggle>
-          <ion-item routerLink="/tabs/reserve">
-            <ion-icon name="calendar-outline" slot="start"></ion-icon>
-            <ion-label>Reserve</ion-label>
-          </ion-item>
-        </ion-menu-toggle>
-        <ion-menu-toggle>
-          <ion-item routerLink="/my-appointments">
-            <ion-icon name="create-outline" slot="start"></ion-icon>
-            <ion-label>My booked appointments</ion-label>
-          </ion-item>
-        </ion-menu-toggle>
+      <!-- Input for Name -->
+      <ion-item>
+        <ion-label position="floating">Name</ion-label>
+        <ion-input type="text" [(ngModel)]="name" name="name" required></ion-input>
+      </ion-item>
 
-      </ion-list>
-    </ion-content>
-  </ion-menu>
+      <!-- Input for Email -->
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input type="email" [(ngModel)]="email" name="email" required email></ion-input>
+      </ion-item>
+
+      <!-- Input for Appointment Date -->
+      <ion-item class="ion-margin">
+        <ion-label position="stacked">Appointment Date</ion-label>
+        <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="appointmentDate" name="appointmentDate"
+                      required></ion-datetime>
+      </ion-item>
+    </ion-list>
+
+    <!-- Submit Button -->
+    <ion-row>
+      <ion-col>
+        <ion-button type="submit" expand="block" [disabled]="!reserveForm.form.valid">Reserve</ion-button>
+      </ion-col>
+    </ion-row>
+  </form>
 
 </ion-content>

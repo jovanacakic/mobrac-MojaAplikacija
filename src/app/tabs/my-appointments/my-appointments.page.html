@@ -1,8 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
+
     <ion-title>My booked appointments</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -14,5 +12,8 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-button expand="full" routerLink="/tabs/reserve" routerDirection="forward">
+    Reserve New Appointment
+  </ion-button>
 
 </ion-content>

@@ -16,7 +16,7 @@ export class RegisterPage implements OnInit {
   }
 
   onRegister(registerForm: NgForm) {
-    this.authService.login();
-    this.router.navigate(['/tabs/reserve']);
+    this.authService.register();
+    this.router.navigate(['/tabs/home']);
   }
 }

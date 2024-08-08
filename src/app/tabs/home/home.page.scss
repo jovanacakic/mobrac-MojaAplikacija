@@ -1,0 +1,31 @@
+
+.home-intro {
+  text-align: center;
+  padding: 1rem;
+}
+
+.home-intro h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.home-intro p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.home-intro ul {
+  text-align: left;
+  padding-left: 1.5rem;
+}
+
+.home-intro ul li {
+  margin-bottom: 0.5rem;
+}
+
+.home-image {
+  display: block;
+  margin: 1rem auto;
+  width: 80%; /* Adjust the width as needed */
+  height: auto;
+}

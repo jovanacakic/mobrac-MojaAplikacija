@@ -5,7 +5,8 @@
 </ion-header>-->
 
 <ion-content [fullscreen]="true">
-  <ion-router-outlet></ion-router-outlet>
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
 
   <!--<ion-header collapse="condense">
     <ion-toolbar>
@@ -17,7 +18,7 @@
         <ion-icon name="home"></ion-icon>
         <ion-label>Home</ion-label>
       </ion-tab-button>
-      <ion-tab-button tab="reserve">
+      <ion-tab-button tab="my-appointments">
         <ion-icon name="calendar"></ion-icon>
         <ion-label>Appointments</ion-label>
       </ion-tab-button>
@@ -26,6 +27,8 @@
         <ion-label>Profile</ion-label>
       </ion-tab-button>
     </ion-tab-bar>
-  </ion-tabs>
 
+
+
+  </ion-tabs>
 </ion-content>

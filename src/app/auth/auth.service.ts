@@ -13,6 +13,10 @@ export class AuthService {
     this.isAuthenticated = true;
   }
 
+  register() {
+    this.isAuthenticated = true;
+  }
+
   logout() {
     this.isAuthenticated = false;
   }
@@ -20,4 +24,5 @@ export class AuthService {
   isLoggedIn(): boolean {
     return this.isAuthenticated;
   }
+
 }

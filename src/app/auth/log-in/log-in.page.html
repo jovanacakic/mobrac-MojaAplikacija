@@ -11,6 +11,11 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-row class="ion-justify-content-center">
+    <ion-col size-sm="6" offset-sm="3" class="ion-text-center">
+      <ion-img src="assets/prenotmi-logo.png" class="logo-img"></ion-img>
+    </ion-col>
+  </ion-row>
   <form #logInForm="ngForm" (ngSubmit)="onLogin(logInForm)">
     <ion-grid>
       <ion-row>
@@ -49,10 +54,10 @@
     </ion-grid>
   </form>
 
-  <ion-item lines="none" class="centered-item">
+  <ion-item lines="none" class="ion-text-center">
     <ion-label>
       You do not have an account?
-      <a [routerLink]="['/auth/register']">Register</a>
+      <a [routerLink]="['/register']">Register</a>
     </ion-label>
   </ion-item>
 

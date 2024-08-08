@@ -1,13 +1,34 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>home</ion-title>
+    <ion-title>Home</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">home</ion-title>
+      <ion-title size="large">Home</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <div class="home-intro">
+    <h2>Welcome to Visa Appointment Scheduler</h2>
+    <p>
+      This application helps you easily schedule, manage, and track your visa appointments. Whether you are applying for a student, work, or tourist visa, our app provides a streamlined and user-friendly experience.
+    </p>
+    <p>
+      Use the tabs below to navigate through the app:
+    </p>
+    <ul>
+      <li><b>Home:</b> View this introductory information.</li>
+      <li><b>Appointments:</b> Schedule new appointments and view your booked appointments.</li>
+      <li><b>Profile:</b> Manage your profile and log out of the application.</li>
+    </ul>
+    <p>
+      If you have any questions or need assistance, feel free to contact our support team.
+    </p>
+  </div>
+
+  <!-- Optionally add an image or any other content you want to display -->
+  <ion-img src="assets/ambasada.png" class="home-image"></ion-img>
 </ion-content>
