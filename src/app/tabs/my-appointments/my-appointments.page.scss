@@ -1,0 +1,22 @@
+ion-card {
+  --background: #f9f9f9; // Light grey background for cards
+}
+
+h2 {
+  text-align: center; // Centers the text if no appointments
+}
+
+ion-card-title {
+  color: var(--ion-color-primary); // Use primary color for card titles
+}
+
+ion-item {
+  --padding-start: 0; // Remove padding for alignment
+  --inner-padding-end: 0;
+}
+
+ion-icon {
+  margin-right: 10px; // Space between icon and text
+  font-size: 1.2rem; // Slightly larger icons
+  color: var(--ion-color-secondary); // Secondary color for icons
+}

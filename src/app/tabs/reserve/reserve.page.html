@@ -18,7 +18,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <form (ngSubmit)="onSubmit()" #reserveForm="ngForm">
+  <form (ngSubmit)="onSubmit(visaType, appointmentDate)" #reserveForm="ngForm">
     <ion-list>
       <!-- Select Visa Type -->
       <ion-item>
@@ -30,17 +30,17 @@
         </ion-select>
       </ion-item>
 
-      <!-- Input for Name -->
+    <!--  &lt;!&ndash; Input for Name &ndash;&gt;
       <ion-item>
         <ion-label position="floating">Name</ion-label>
         <ion-input type="text" [(ngModel)]="name" name="name" required></ion-input>
       </ion-item>
 
-      <!-- Input for Email -->
+      &lt;!&ndash; Input for Email &ndash;&gt;
       <ion-item>
         <ion-label position="floating">Email</ion-label>
         <ion-input type="email" [(ngModel)]="email" name="email" required email></ion-input>
-      </ion-item>
+      </ion-item>-->
 
       <!-- Input for Appointment Date -->
       <ion-item class="ion-margin">

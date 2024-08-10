@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {ReservationService} from "../../services/reservation.service";
+import {Reservation} from "../reservation.model";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-reserve',
@@ -11,10 +14,13 @@ export class ReservePage implements OnInit {
   name: string | undefined;
   email: string | undefined;
   appointmentDate: string | undefined;
+  reservations: Reservation[] = [];
+  private reservationsSub: Subscription | undefined;
 
-  constructor() { }
+  constructor(private reservationService: ReservationService) {
+  }
 
-  onSubmit() {
+/*  onSubmit() {
     if (this.visaType && this.name && this.email && this.appointmentDate) {
       // Handle the form submission
       console.log('Form submitted with:', {
@@ -32,9 +38,26 @@ export class ReservePage implements OnInit {
     } else {
       console.log('Form is incomplete');
     }
-  }
+  }*/
 
   ngOnInit() {
+    this.reservationsSub = this.reservationService.reservations.subscribe(reservations => {
+      this.reservations = reservations;
+    });
   }
 
+  onSubmit(visaType: string | undefined, appointmentDate: string | undefined) {
+    this.reservationService.addReservation(visaType, appointmentDate).subscribe();
+    // Resetovanje forme
+    this.visaType = '';
+
+    this.appointmentDate = '';
+  }
+
+
+  ngOnDestroy() {
+    if (this.reservationsSub) {
+      this.reservationsSub.unsubscribe();
+    }
+  }
 }
