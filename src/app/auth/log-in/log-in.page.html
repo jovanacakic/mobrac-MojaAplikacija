@@ -48,6 +48,10 @@
 
       <ion-row class="ion-justify-content-center">
         <ion-col size-sm="6">
+          <div class="ion-text-center">
+            <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner>
+          </div>
+
           <ion-button type="submit" expand="block" shape="round" [disabled]="logInForm.invalid">Log in</ion-button>
         </ion-col>
       </ion-row>

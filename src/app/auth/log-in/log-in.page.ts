@@ -10,13 +10,23 @@ import {Router} from "@angular/router";
 })
 export class LogInPage implements OnInit {
 
+  isLoading = false;
+
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
   }
 
   onLogin(logInForm: NgForm) {
-    this.authService.login();
-    this.router.navigate(['/tabs/home']);
+    this.isLoading = true;
+    console.log(logInForm);
+    if (logInForm.valid) {
+      this.authService.login(logInForm.value).subscribe(resData => {
+        console.log('Uspesan login')
+        console.log(resData);
+        this.isLoading = false;
+        this.router.navigateByUrl('/tabs/home');
+      });
+    }
   }
 }
