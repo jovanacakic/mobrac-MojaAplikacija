@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {NgForm} from "@angular/forms";
 import {AuthService} from "../auth.service";
 import {Router} from "@angular/router";
-import {LoadingController} from "@ionic/angular";
+import {AlertController, LoadingController} from "@ionic/angular";
 
 @Component({
   selector: 'app-register',
@@ -11,7 +11,7 @@ import {LoadingController} from "@ionic/angular";
 })
 export class RegisterPage implements OnInit {
 
-  constructor(private authService: AuthService, private router: Router, private loadingCtrl: LoadingController) {
+  constructor(private authService: AuthService, private router: Router, private loadingCtrl: LoadingController, private alertCtrl: AlertController) {
   }
 
   ngOnInit() {
@@ -21,17 +21,63 @@ export class RegisterPage implements OnInit {
      this.authService.register();
      this.router.navigate(['/tabs/home']);
    }*/
-  onRegister(registerForm: NgForm) {
+/*  onRegister(registerForm: NgForm) {
     this.loadingCtrl.create({message: 'Registering...'}).then((loadingEl) => {
       loadingEl.present();
       this.authService.register(registerForm.value).subscribe(resData => {
-        console.log('Registracija uspela!');
-        console.log(resData);
+          console.log('Registracija uspela!');
+          console.log(resData);
 
-        loadingEl.dismiss();
-        this.router.navigateByUrl('/tabs/home');
-      });
+          loadingEl.dismiss();
+          this.router.navigateByUrl('/tabs/home');
+        },
+        errRes => {
+          console.log(errRes);
+          loadingEl.dismiss();
+          let message = 'Something went wrong during registration!';
+
+          this.alertCtrl.create({
+            header: 'Registration failed',
+            message,
+            buttons: ['Okay']
+          }).then((alert) => {
+            alert.present();
+          });
+          registerForm.reset();
+        });
     });
 
+  }*/
+  onRegister(registerForm: NgForm) {
+    this.loadingCtrl.create({ message: 'Registering...' }).then((loadingEl) => {
+      loadingEl.present();
+      this.authService.register({
+        email: registerForm.value.email,
+        password: registerForm.value.password,
+        name: registerForm.value.name,
+        surname: registerForm.value.surname,
+      }).subscribe(resData => {
+          console.log('Registracija uspela!');
+          console.log(resData);
+
+          loadingEl.dismiss();
+          this.router.navigateByUrl('/tabs/home');
+        },
+        errRes => {
+          console.log(errRes);
+          loadingEl.dismiss();
+          let message = 'Something went wrong during registration!';
+
+          this.alertCtrl.create({
+            header: 'Registration failed',
+            message,
+            buttons: ['Okay']
+          }).then((alert) => {
+            alert.present();
+          });
+          registerForm.reset();
+        });
+    });
   }
+
 }

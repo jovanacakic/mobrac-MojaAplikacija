@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NgForm} from "@angular/forms";
 import {AuthService} from "../auth.service";
 import {Router} from "@angular/router";
+import {AlertController} from "@ionic/angular";
 
 @Component({
   selector: 'app-log-in',
@@ -12,7 +13,8 @@ export class LogInPage implements OnInit {
 
   isLoading = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private alertCtrl: AlertController) {
+  }
 
   ngOnInit() {
   }
@@ -22,11 +24,25 @@ export class LogInPage implements OnInit {
     console.log(logInForm);
     if (logInForm.valid) {
       this.authService.login(logInForm.value).subscribe(resData => {
-        console.log('Uspesan login')
-        console.log(resData);
-        this.isLoading = false;
-        this.router.navigateByUrl('/tabs/home');
-      });
+          console.log('Uspesan login')
+          console.log(resData);
+          this.isLoading = false;
+          this.router.navigateByUrl('/tabs/home');
+        },
+        errRes => {
+          console.log(errRes);
+          this.isLoading = false;
+          let message = 'Incorrect email or password!';
+
+          this.alertCtrl.create({
+            header: 'Authentication failed',
+            message,
+            buttons: ['Okay']
+          }).then((alert) => {
+            alert.present();
+          });
+          logInForm.reset();
+        });
     }
   }
 }

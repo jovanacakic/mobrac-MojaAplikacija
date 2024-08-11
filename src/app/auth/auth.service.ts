@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, map, tap} from "rxjs";
+import {BehaviorSubject, map, switchMap, tap} from "rxjs";
 import {User} from "./user.model";
 import {environment} from "../../environments/environment";
 
@@ -47,6 +47,30 @@ export class AuthService {
     );
   }
 
+  get userId() {
+    return this._user.asObservable().pipe(
+      map((user) => {
+        if (user) {
+          return user.id;
+        } else {
+          return null;
+        }
+      })
+    );
+  }
+
+  get token() {
+    return this._user.asObservable().pipe(
+      map((user) => {
+        if (user) {
+          return user.token;
+        } else {
+          return null;
+        }
+      })
+    );
+  }
+
   login(user: UserData) {
     this._isUserAuthenticated = true;
     return this.http.post<AuthResponseData>(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`,
@@ -60,22 +84,61 @@ export class AuthService {
       );
   }
 
-  register(user: UserData) {
-    this._isUserAuthenticated = true;
-    return this.http.post<AuthResponseData>(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`,
-      {email: user.email, password: user.password, returnSecureToken: true})
-      .pipe(
-        tap((userData) => {
-          const expirationTime = new Date(new Date().getTime() + +userData.expiresIn * 1000);
-          const user = new User(userData.localId, userData.email, userData.idToken, expirationTime);
-          this._user.next(user);
-        })
-      );
-  }
+  /*  register(user: UserData) {
+      this._isUserAuthenticated = true;
+      return this.http.post<AuthResponseData>(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`,
+        {email: user.email, password: user.password, returnSecureToken: true})
+        .pipe(
+          tap((userData) => {
+            const expirationTime = new Date(new Date().getTime() + +userData.expiresIn * 1000);
+            const user = new User(userData.localId, userData.email, userData.idToken, expirationTime);
+            this._user.next(user);
+          })
+        );
+    }*/
 
+  register(user: UserData) {
+    return this.http.post<AuthResponseData>(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`,
+      {
+        email: user.email,
+        password: user.password,
+        returnSecureToken: true
+      }
+    ).pipe(
+      tap((userData) => {
+        const expirationTime = new Date(new Date().getTime() + +userData.expiresIn * 1000);
+        const newUser = new User(userData.localId, userData.email, userData.idToken, expirationTime, user.name, user.surname);
+        this._user.next(newUser);
+
+        // Sačuvaj dodatne podatke u Firebase Realtime Database
+        this.http.put(
+          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/users/${userData.localId}.json?auth=${userData.idToken}`,
+          {
+            firstName: user.name,
+            lastName: user.surname,
+            username: user.email
+          }
+        ).subscribe();
+      })
+    );
+  }
 
   logout() {
     this._user.next(null);
+  }
+
+  getUserProfile() {
+    return this.userId.pipe(
+      switchMap(userId => {
+        if (!userId) {
+          throw new Error('User not found');
+        }
+        return this.http.get<{ firstName: string; lastName: string; username: string }>(
+          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/users/${userId}.json?auth=${this._user.getValue()?.token}`
+        );
+      })
+    );
   }
 
   isLoggedIn(): boolean {

@@ -10,15 +10,24 @@ import {AlertController} from "@ionic/angular";
 })
 export class ProfilePage implements OnInit {
 
+  firstName: string | undefined;
+  lastName: string | undefined;
+  username: string | undefined;
+
   constructor(
     private router: Router,
     private authService: AuthService,
     private alertController: AlertController
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
+    this.authService.getUserProfile().subscribe((profile) => {
+      this.firstName = profile.firstName;
+      this.lastName = profile.lastName;
+      this.username = profile.username;
+    });
   }
+
 
   async presentLogoutConfirm() {
     const alert = await this.alertController.create({

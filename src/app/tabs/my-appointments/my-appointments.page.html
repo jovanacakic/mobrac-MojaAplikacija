@@ -37,12 +37,18 @@
             <h3>Visa Type: {{ reservation.visaType | titlecase }}</h3>
           </ion-label>
         </ion-item>
+        <ion-item>
+          <ion-button fill="outline" color="danger" (click)="onCancelReservation(reservation.id)">
+            Cancel appointment
+          </ion-button>
+        </ion-item>
+
       </ion-card-content>
     </ion-card>
   </ion-list>
 
 
-  <ion-button expand="block" shape="round" routerLink="/tabs/reserve" routerDirection="forward">
+  <ion-button expand="block" routerLink="/tabs/reserve" routerDirection="forward">
     Reserve New Appointment
   </ion-button>
 
