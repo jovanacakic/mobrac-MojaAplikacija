@@ -1,6 +1,9 @@
+import {TimeSlot} from "./time-slot.model";
+
 export interface Reservation {
   id: string;
   visaType: string;
-  appointmentDate: Date;
+  //appointmentDate: Date;
+  timeSlot: TimeSlot;
   userId: string;
 }

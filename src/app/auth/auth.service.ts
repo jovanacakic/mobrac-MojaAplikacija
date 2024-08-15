@@ -19,6 +19,7 @@ interface UserData {
   surname: string;
   email: string;
   password: string;
+  //ionicrole: string;
 }
 
 @Injectable({
@@ -28,6 +29,7 @@ interface UserData {
 export class AuthService {
 
   private _user = new BehaviorSubject<User | null>(null);
+  private _isAdmin = false;
 
   constructor(private http: HttpClient) {
   }
@@ -45,6 +47,10 @@ export class AuthService {
         }
       })
     );
+  }
+
+  get isUserAdmin() {
+    return this._isAdmin;
   }
 
   get userId() {
@@ -71,12 +77,31 @@ export class AuthService {
     );
   }
 
+   setRole(email: string, password: string): string {
+    if (email === "admin@gmail.com" && password === "admin") {
+      return "admin";
+    } else {
+      return "user";
+    }
+  }
+
+
   login(user: UserData) {
     this._isUserAuthenticated = true;
+    const userRole = this.setRole(user.email, user.password);
+
     return this.http.post<AuthResponseData>(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`,
       {email: user.email, password: user.password, returnSecureToken: true})
       .pipe(
         tap((userData) => {
+
+          if (userRole === 'admin') {
+            this._isAdmin = true;
+            localStorage.setItem("isAdmin", "true");
+          } else {
+            this._isAdmin = false;
+          }
+
           const expirationTime = new Date(new Date().getTime() + +userData.expiresIn * 1000);
           const user = new User(userData.localId, userData.email, userData.idToken, expirationTime);
           this._user.next(user);
@@ -111,7 +136,6 @@ export class AuthService {
         const newUser = new User(userData.localId, userData.email, userData.idToken, expirationTime, user.name, user.surname);
         this._user.next(newUser);
 
-        // Sačuvaj dodatne podatke u Firebase Realtime Database
         this.http.put(
           `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/users/${userData.localId}.json?auth=${userData.idToken}`,
           {

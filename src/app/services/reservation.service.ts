@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Reservation} from "../tabs/reservation.model";
-import {BehaviorSubject, map, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, Observable, map, switchMap, take, tap} from "rxjs";
 import {AuthService} from "../auth/auth.service";
+import {TimeSlot} from '../tabs/time-slot.model';
 
 @Injectable({
   providedIn: 'root'
@@ -84,7 +85,7 @@ export class ReservationService {
         })
       );
     }*/
-  addReservation(visaType: string | undefined, appointmentDate: string | undefined) {
+  addReservation(visaType: string | undefined, appointmentDate: string | undefined, startTime: string, endTime: string) {
     let generatedId: string;
     let newReservation: Reservation;
 
@@ -103,7 +104,7 @@ export class ReservationService {
               // @ts-ignore
               visaType,
               // @ts-ignore
-              appointmentDate,
+              timeSlot,
               userId
             };
 
@@ -133,6 +134,26 @@ export class ReservationService {
       tap(() => {
         const updatedReservations = this._reservations.getValue().filter(r => r.id !== reservationId);
         this._reservations.next(updatedReservations);
+      })
+    );
+  }
+
+  getTimeSlots(): Observable<TimeSlot[]> {
+    return this.authService.token.pipe(
+      switchMap(token => {
+        return this.http.get<{ [key: string]: TimeSlot }>(
+          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/timeslots.json?auth=${token}`
+        ).pipe(
+          map(responseData => {
+            const slotsArray: TimeSlot[] = [];
+            for (const key in responseData) {
+              if (responseData.hasOwnProperty(key)) {
+                slotsArray.push({...responseData[key], id: key});
+              }
+            }
+            return slotsArray;
+          })
+        );
       })
     );
   }

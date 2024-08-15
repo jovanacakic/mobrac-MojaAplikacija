@@ -18,7 +18,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <form (ngSubmit)="onSubmit(visaType, appointmentDate)" #reserveForm="ngForm">
+  <form (ngSubmit)="onSubmit(visaType)" #reserveForm="ngForm">
     <ion-list>
       <!-- Select Visa Type -->
       <ion-item>
@@ -50,7 +50,16 @@
       </ion-item>
     </ion-list>
 
-    <!-- Submit Button -->
+    <ion-item>
+      <ion-label>Date and Time</ion-label>
+      <ion-select [(ngModel)]="selectedTimeSlot" name="timeSlot" required>
+        <ion-select-option *ngFor="let slot of timeSlots" [value]="slot">
+          {{ slot.date }}: {{ slot.startTime }} - {{ slot.endTime }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+
     <ion-row>
       <ion-col>
         <ion-button type="submit" expand="block" [disabled]="!reserveForm.form.valid">Reserve</ion-button>

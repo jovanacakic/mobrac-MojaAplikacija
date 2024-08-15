@@ -28,7 +28,7 @@
         <ion-item lines="none">
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
           <ion-label>
-            <h3>Date: {{ reservation.appointmentDate | date: 'fullDate' }}</h3>
+            <h3>Date: {{ reservation.timeSlot.date | date: 'fullDate' }}</h3>
           </ion-label>
         </ion-item>
         <ion-item lines="none">

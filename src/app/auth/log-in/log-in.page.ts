@@ -12,6 +12,7 @@ import {AlertController} from "@ionic/angular";
 export class LogInPage implements OnInit {
 
   isLoading = false;
+  _isAdmin = false;
 
   constructor(private authService: AuthService, private router: Router, private alertCtrl: AlertController) {
   }
@@ -22,6 +23,7 @@ export class LogInPage implements OnInit {
   onLogin(logInForm: NgForm) {
     this.isLoading = true;
     console.log(logInForm);
+
     if (logInForm.valid) {
       this.authService.login(logInForm.value).subscribe(resData => {
           console.log('Uspesan login')
@@ -45,4 +47,5 @@ export class LogInPage implements OnInit {
         });
     }
   }
+
 }

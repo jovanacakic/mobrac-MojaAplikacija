@@ -3,6 +3,7 @@ import {ReservationService} from "../../services/reservation.service";
 import {Reservation} from "../reservation.model";
 import {Subscription} from "rxjs";
 import {AlertController} from "@ionic/angular";
+import {TimeSlot} from "../time-slot.model";
 
 @Component({
   selector: 'app-reserve',
@@ -16,11 +17,13 @@ export class ReservePage implements OnInit {
   email: string | undefined;
   appointmentDate: string | undefined;
   reservations: Reservation[] = [];
+  timeSlots: TimeSlot[] = [];
   private reservationsSub: Subscription | undefined;
+
+  selectedTimeSlot: TimeSlot | undefined | null;
 
   constructor(private reservationService: ReservationService, private alertCtrl: AlertController) {
   }
-
   /*  onSubmit() {
       if (this.visaType && this.name && this.email && this.appointmentDate) {
         // Handle the form submission
@@ -55,17 +58,22 @@ export class ReservePage implements OnInit {
     this.reservationsSub = this.reservationService.reservations.subscribe(reservations => {
       this.reservations = reservations;
     });
-  }
-
-  onSubmit(visaType: string | undefined, appointmentDate: string | undefined) {
-    this.reservationService.addReservation(visaType, appointmentDate).subscribe(() => {
-      this.presentReservationAlert();
+    this.reservationService.getTimeSlots().subscribe(slots => {
+      this.timeSlots = slots.filter(slot => slot.isAvailable);
     });
-    // Resetovanje forme
-    this.visaType = '';
-
-    this.appointmentDate = '';
   }
+
+  onSubmit(visaType: string | undefined) {
+    if (this.selectedTimeSlot) {
+      this.reservationService.addReservation(visaType, this.selectedTimeSlot.date, this.selectedTimeSlot.startTime, this.selectedTimeSlot.endTime).subscribe(() => {
+        this.presentReservationAlert();
+      });
+      // Resetovanje forme
+      this.visaType = '';
+      this.selectedTimeSlot = null;
+    }
+  }
+
 
 
   ngOnDestroy() {
