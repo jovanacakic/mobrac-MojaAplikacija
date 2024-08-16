@@ -19,6 +19,7 @@ interface UserData {
   surname: string;
   email: string;
   password: string;
+  role: string;
   //ionicrole: string;
 }
 
@@ -40,7 +41,6 @@ export class AuthService {
     return this._user.asObservable().pipe(
       map((user) => {
         if (user) {
-
           return !!user.token;
         } else {
           return false;
@@ -77,8 +77,8 @@ export class AuthService {
     );
   }
 
-   setRole(email: string, password: string): string {
-    if (email === "admin@gmail.com" && password === "admin") {
+  setRole(email: string, password: string): string {
+    if (email === "admin@gmail.com" && password === "7654321") {
       return "admin";
     } else {
       return "user";
@@ -95,7 +95,7 @@ export class AuthService {
       .pipe(
         tap((userData) => {
 
-          if (userRole === 'admin') {
+          if (userRole === "admin") {
             this._isAdmin = true;
             localStorage.setItem("isAdmin", "true");
           } else {
@@ -103,7 +103,7 @@ export class AuthService {
           }
 
           const expirationTime = new Date(new Date().getTime() + +userData.expiresIn * 1000);
-          const user = new User(userData.localId, userData.email, userData.idToken, expirationTime);
+          const user = new User(userData.localId, userData.email, userRole, userData.idToken, expirationTime);
           this._user.next(user);
         })
       );
@@ -133,7 +133,7 @@ export class AuthService {
     ).pipe(
       tap((userData) => {
         const expirationTime = new Date(new Date().getTime() + +userData.expiresIn * 1000);
-        const newUser = new User(userData.localId, userData.email, userData.idToken, expirationTime, user.name, user.surname);
+        const newUser = new User(userData.localId, userData.email, 'user', userData.idToken, expirationTime, user.name, user.surname);
         this._user.next(newUser);
 
         this.http.put(
@@ -141,7 +141,8 @@ export class AuthService {
           {
             firstName: user.name,
             lastName: user.surname,
-            username: user.email
+            username: user.email,
+            role: user.role,
           }
         ).subscribe();
       })

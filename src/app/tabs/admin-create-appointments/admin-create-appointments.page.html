@@ -1,0 +1,50 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>admin-appointments</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">admin-appointments</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-item>
+    <ion-toggle [(ngModel)]="wholeMonth" [enableOnOffLabels]="true">Add appointments for the whole month</ion-toggle>
+  </ion-item>
+
+  <ion-item>
+    <!--   prikazujemo kad jeste ceo mesec-->
+    <ion-datetime presentation="month-year" [min]="minDate" [max]="maxDate" [(ngModel)]="selectedMonth" *ngIf="wholeMonth"></ion-datetime>
+  </ion-item>
+
+  <!--  <ion-item>-->
+  <!--    <ion-checkbox [(ngModel)]="wholeMonth">The whole month</ion-checkbox>-->
+  <!--  </ion-item>-->
+
+
+  <ion-item>
+    <!--   prikazujemo kad nije ceo mesec-->
+    <ion-datetime presentation="date" [min]="minDate" [max]="maxDate" [(ngModel)]="selectedDate" [disabled]="wholeMonth"
+                  *ngIf="!wholeMonth"
+                  [showDefaultTitle]="true">
+    </ion-datetime>
+  </ion-item>
+
+
+  <!--  <ion-item>-->
+
+  <!--    <ion-datetime [disabled]="wholeMonth" [showDefaultTitle]="true" display-format="YYYY-MM-DDTHH:mm" picker-format="YYYY-MM-DDTHH:mm"-->
+  <!--                  minuteValues="0,30" hourValues="9,10,11,12,13,14,15" hourCycle="h24">-->
+  <!--    </ion-datetime>-->
+  <!--  </ion-item>-->
+
+
+  <ion-button type="submit" expand="block" (click)="addAppointments()">
+    Add appointments
+  </ion-button>
+
+
+</ion-content>

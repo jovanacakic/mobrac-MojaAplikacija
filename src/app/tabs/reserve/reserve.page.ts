@@ -1,9 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {ReservationService} from "../../services/reservation.service";
 import {Reservation} from "../reservation.model";
-import {Subscription} from "rxjs";
+import {map, Observable, Subscription, switchMap} from "rxjs";
 import {AlertController} from "@ionic/angular";
 import {TimeSlot} from "../time-slot.model";
+import {AuthService} from "../../auth/auth.service";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-reserve',
@@ -22,8 +24,9 @@ export class ReservePage implements OnInit {
 
   selectedTimeSlot: TimeSlot | undefined | null;
 
-  constructor(private reservationService: ReservationService, private alertCtrl: AlertController) {
+  constructor(private reservationService: ReservationService, private alertCtrl: AlertController, private authService: AuthService, private http: HttpClient) {
   }
+
   /*  onSubmit() {
       if (this.visaType && this.name && this.email && this.appointmentDate) {
         // Handle the form submission
@@ -44,25 +47,55 @@ export class ReservePage implements OnInit {
       }
     }*/
 
-  async presentReservationAlert() {
-    const alert = await this.alertCtrl.create({
-      header: 'Reservation Successful',
-      message: 'Your appointment has been successfully reserved.',
-      buttons: ['OK']
-    });
-
-    await alert.present();
-  }
-
   ngOnInit() {
     this.reservationsSub = this.reservationService.reservations.subscribe(reservations => {
       this.reservations = reservations;
     });
-    this.reservationService.getTimeSlots().subscribe(slots => {
-      this.timeSlots = slots.filter(slot => slot.isAvailable);
-    });
+    this.loadTimeSlots();
   }
 
+
+  ngOnDestroy() {
+    if (this.reservationsSub) {
+      this.reservationsSub.unsubscribe();
+    }
+  }
+
+  loadTimeSlots() {
+    if (this.appointmentDate) {
+      const selectedDate = this.appointmentDate.split('T')[0]; // Izdvaja datum u formatu YYYY-MM-DD
+      this.reservationService.getTimeSlots(selectedDate).subscribe(slots => {
+        console.log("Available slots:", slots);
+        this.timeSlots = slots;
+      });
+    }
+  }
+
+
+  // onDateChange() {
+  //   if (this.appointmentDate) {
+  //     // Extract date part only (YYYY-MM-DD)
+  //     const selectedDate = this.appointmentDate.split('T')[0];
+  //     console.log("Selected date:", selectedDate);
+  //
+  //     this.reservationService.getTimeSlots(selectedDate).subscribe(slots => {
+  //       console.log("Available slots:", slots);
+  //       this.timeSlots = slots.filter(slot => slot.status == 'available');
+  //     });
+  //   }
+  // }
+  onDateChange() {
+    if (this.appointmentDate) {
+
+      const selectedDate = this.appointmentDate.split('T')[0];
+      console.log('Selected date:', selectedDate);
+
+      this.reservationService.getAppointmentsByDate(selectedDate).subscribe(appointment => {
+        this.timeSlots = appointment ? appointment.timeSlots.filter(slot => slot.status === 'available') : [];
+        console.log('Available slots:', this.timeSlots);
+      });
+    }
+  }
   onSubmit(visaType: string | undefined) {
     if (this.selectedTimeSlot) {
       this.reservationService.addReservation(visaType, this.selectedTimeSlot.date, this.selectedTimeSlot.startTime, this.selectedTimeSlot.endTime).subscribe(() => {
@@ -75,10 +108,13 @@ export class ReservePage implements OnInit {
   }
 
 
+  async presentReservationAlert() {
+    const alert = await this.alertCtrl.create({
+      header: 'Reservation Successful',
+      message: 'Your appointment has been successfully reserved.',
+      buttons: ['OK']
+    });
 
-  ngOnDestroy() {
-    if (this.reservationsSub) {
-      this.reservationsSub.unsubscribe();
-    }
+    await alert.present();
   }
 }

@@ -1,7 +1,7 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {Routes, RouterModule} from '@angular/router';
 
-import { TabsPage } from './tabs.page';
+import {TabsPage} from './tabs.page';
 import {AuthGuard} from "../auth/auth.guard";
 
 const routes: Routes = [
@@ -25,8 +25,18 @@ const routes: Routes = [
         canActivate: [AuthGuard]
       },
       {
+        path: 'admin-create-appointments',
+        loadChildren: () => import('../tabs/admin-create-appointments/admin-create-appointments.module').then(m => m.AdminAppointmentsPageModule),
+        canActivate: [AuthGuard]
+      },
+      {
         path: 'home',
-        loadChildren: () => import('../tabs/home/home.module').then( m => m.HomePageModule),
+        loadChildren: () => import('../tabs/home/home.module').then(m => m.HomePageModule),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'admin-approve-appointments',
+        loadChildren: () => import('../tabs/admin-approve-appointments/admin-approve-appointments.module').then(m => m.AdminApproveAppointmentsPageModule),
         canActivate: [AuthGuard]
       },
       {
@@ -35,11 +45,14 @@ const routes: Routes = [
         pathMatch: 'full'
       }
     ]
-  }
+  },
+
+
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class TabsPageRoutingModule {}
+export class TabsPageRoutingModule {
+}

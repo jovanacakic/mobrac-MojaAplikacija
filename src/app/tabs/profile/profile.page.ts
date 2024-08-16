@@ -13,6 +13,7 @@ export class ProfilePage implements OnInit {
   firstName: string | undefined;
   lastName: string | undefined;
   username: string | undefined;
+  role: string | undefined;
 
   constructor(
     private router: Router,

@@ -138,16 +138,19 @@ export class ReservationService {
     );
   }
 
-  getTimeSlots(): Observable<TimeSlot[]> {
+  getTimeSlots(selectedDate: string): Observable<TimeSlot[]> {
     return this.authService.token.pipe(
       switchMap(token => {
-        return this.http.get<{ [key: string]: TimeSlot }>(
-          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/timeslots.json?auth=${token}`
-        ).pipe(
+        const url = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments.json?auth=${token}`;
+        return this.http.get<{ [key: string]: TimeSlot }>(url).pipe(
           map(responseData => {
             const slotsArray: TimeSlot[] = [];
             for (const key in responseData) {
-              if (responseData.hasOwnProperty(key)) {
+              if (
+                responseData.hasOwnProperty(key) &&
+                responseData[key].status === 'available' &&
+                responseData[key].date === selectedDate
+              ) {
                 slotsArray.push({...responseData[key], id: key});
               }
             }
@@ -158,5 +161,23 @@ export class ReservationService {
     );
   }
 
+  getAppointmentsByDate(date: string): Observable<{ date: string, timeSlots: TimeSlot[] } | null> {
+    return this.authService.token.pipe(
+      switchMap(token => {
+        return this.http.get<{ [key: string]: { date: string, timeSlots: TimeSlot[] } }>(
+          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments.json?auth=${token}`
+        ).pipe(
+          map(responseData => {
+            for (const key in responseData) {
+              if (responseData.hasOwnProperty(key) && responseData[key].date === date) {
+                return responseData[key];
+              }
+            }
+            return null;
+          })
+        );
+      })
+    );
+  }
 
 }

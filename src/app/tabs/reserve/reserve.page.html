@@ -42,23 +42,46 @@
         <ion-input type="email" [(ngModel)]="email" name="email" required email></ion-input>
       </ion-item>-->
 
-      <!-- Input for Appointment Date -->
-      <ion-item class="ion-margin">
-        <ion-label position="stacked">Appointment Date</ion-label>
-        <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="appointmentDate" name="appointmentDate"
-                      required></ion-datetime>
-      </ion-item>
+
     </ion-list>
 
-    <ion-item>
-      <ion-label>Date and Time</ion-label>
-      <ion-select [(ngModel)]="selectedTimeSlot" name="timeSlot" required>
-        <ion-select-option *ngFor="let slot of timeSlots" [value]="slot">
-          {{ slot.date }}: {{ slot.startTime }} - {{ slot.endTime }}
-        </ion-select-option>
-      </ion-select>
+
+    <ion-item class="ion-margin">
+      <ion-label position="stacked">Appointment Date</ion-label>
+      <ion-datetime presentation="date" displayFormat="MM/DD/YYYY" [(ngModel)]="appointmentDate" (ionChange)="onDateChange()" name="appointmentDate" required></ion-datetime>
     </ion-item>
 
+<!--    <ion-item>-->
+<!--      <ion-label>Date and Time</ion-label>-->
+<!--      <ion-select [(ngModel)]="selectedTimeSlot" name="timeSlot" required>-->
+<!--        <ion-select-option *ngFor="let slot of timeSlots" [value]="slot">-->
+<!--          {{ slot.date }}: {{ slot.startTime }} - {{ slot.endTime }}-->
+<!--        </ion-select-option>-->
+<!--      </ion-select>-->
+<!--    </ion-item>-->
+
+    <ion-item>
+
+        <!-- Grid kontejner -->
+        <ion-grid>
+          <!-- Ponavljanje ion-row tri puta za tri reda -->
+          <ion-row *ngFor="let row of [0, 1, 2]">
+            <!-- Ponavljanje ion-col tri puta za tri kolone po redu -->
+            <ion-col size="4" *ngFor="let col of [0, 1, 2]">
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>
+                    Naslov Kartice {{ row * 3 + col + 1 }}
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  Sadržaj Kartice {{ row * 3 + col + 1 }}
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+    </ion-item>
 
     <ion-row>
       <ion-col>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {AuthService} from "../auth/auth.service";
 
 @Component({
   selector: 'app-tabs',
@@ -7,9 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TabsPage implements OnInit {
 
-  constructor() { }
+  _isAdmin: boolean = false;
+  constructor(private authService: AuthService) {
+    this._isAdmin = this.authService.isUserAdmin;
+  }
 
   ngOnInit() {
+    this._isAdmin = this.authService.isUserAdmin;
+    console.log("cao");
   }
 
 }
