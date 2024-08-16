@@ -10,7 +10,7 @@ import {TimeSlot} from '../tabs/time-slot.model';
 })
 export class ReservationService {
 
-  private baseUrl = 'https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations.json';
+  private baseUrl = 'https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app';
 
   constructor(private http: HttpClient, private authService: AuthService) {
   }
@@ -85,7 +85,7 @@ export class ReservationService {
         })
       );
     }*/
-  addReservation(visaType: string | undefined, appointmentDate: string | undefined, startTime: string, endTime: string) {
+  addReservation(visaType: string | undefined, timeSlot: TimeSlot) {
     let generatedId: string;
     let newReservation: Reservation;
 
@@ -99,18 +99,26 @@ export class ReservationService {
               throw new Error('User not authenticated!');
             }
 
-            newReservation = {
-              id: '', // ID će biti postavljen od strane Firebase-a
-              // @ts-ignore
-              visaType,
-              // @ts-ignore
-              timeSlot,
-              userId
+             newReservation = {
+              id: '',
+              visaType: visaType,
+              appointmentDate: timeSlot.date,
+              timeSlot: {
+                id: timeSlot.id,
+                status: timeSlot.status,
+                date: timeSlot.date,
+                startTime: timeSlot.startTime,
+                endTime: timeSlot.endTime,
+                isAvailable: timeSlot.isAvailable
+              },
+              userId: userId
             };
 
             return {userId, token};
           }),
           switchMap(({token}) => {
+            console.log("Sending reservation data:", newReservation);
+
             const url = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations.json?auth=${token}`;
             return this.http.post<{ name: string }>(url, newReservation);
           })
@@ -138,40 +146,20 @@ export class ReservationService {
     );
   }
 
-  getTimeSlots(selectedDate: string): Observable<TimeSlot[]> {
+  getTimeSlotsByDate(date: string): Observable<{ date: string, timeSlots: TimeSlot[] } | null> {
     return this.authService.token.pipe(
       switchMap(token => {
-        const url = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments.json?auth=${token}`;
-        return this.http.get<{ [key: string]: TimeSlot }>(url).pipe(
+        // Razdvajanje datuma na komponente
+        const [year, month, day] = date.split('-').map(Number);
+        // Prilagođavanje URL-a da uključi godinu, mesec i dan
+        const url = `${this.baseUrl}/appointments/${year}/${month}/${day}.json?auth=${token}`;
+        return this.http.get<{ timeSlots: TimeSlot[] }>(url).pipe(
           map(responseData => {
-            const slotsArray: TimeSlot[] = [];
-            for (const key in responseData) {
-              if (
-                responseData.hasOwnProperty(key) &&
-                responseData[key].status === 'available' &&
-                responseData[key].date === selectedDate
-              ) {
-                slotsArray.push({...responseData[key], id: key});
-              }
-            }
-            return slotsArray;
-          })
-        );
-      })
-    );
-  }
-
-  getAppointmentsByDate(date: string): Observable<{ date: string, timeSlots: TimeSlot[] } | null> {
-    return this.authService.token.pipe(
-      switchMap(token => {
-        return this.http.get<{ [key: string]: { date: string, timeSlots: TimeSlot[] } }>(
-          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments.json?auth=${token}`
-        ).pipe(
-          map(responseData => {
-            for (const key in responseData) {
-              if (responseData.hasOwnProperty(key) && responseData[key].date === date) {
-                return responseData[key];
-              }
+            if (responseData && responseData.timeSlots) {
+              return {
+                date: date,
+                timeSlots: responseData.timeSlots.filter(slot => slot.status === 'available')
+              };
             }
             return null;
           })

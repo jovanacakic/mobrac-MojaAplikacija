@@ -61,12 +61,17 @@ export class ReservePage implements OnInit {
     }
   }
 
+  selectSlot(slot: TimeSlot) {
+    this.selectedTimeSlot = slot;
+  }
+
   loadTimeSlots() {
     if (this.appointmentDate) {
       const selectedDate = this.appointmentDate.split('T')[0]; // Izdvaja datum u formatu YYYY-MM-DD
-      this.reservationService.getTimeSlots(selectedDate).subscribe(slots => {
+      this.reservationService.getTimeSlotsByDate(selectedDate).subscribe(slots => {
         console.log("Available slots:", slots);
-        this.timeSlots = slots;
+        // @ts-ignore
+        this.timeSlots = slots?.timeSlots;
       });
     }
   }
@@ -90,7 +95,7 @@ export class ReservePage implements OnInit {
       const selectedDate = this.appointmentDate.split('T')[0];
       console.log('Selected date:', selectedDate);
 
-      this.reservationService.getAppointmentsByDate(selectedDate).subscribe(appointment => {
+      this.reservationService.getTimeSlotsByDate(selectedDate).subscribe(appointment => {
         this.timeSlots = appointment ? appointment.timeSlots.filter(slot => slot.status === 'available') : [];
         console.log('Available slots:', this.timeSlots);
       });
@@ -98,7 +103,8 @@ export class ReservePage implements OnInit {
   }
   onSubmit(visaType: string | undefined) {
     if (this.selectedTimeSlot) {
-      this.reservationService.addReservation(visaType, this.selectedTimeSlot.date, this.selectedTimeSlot.startTime, this.selectedTimeSlot.endTime).subscribe(() => {
+
+      this.reservationService.addReservation(visaType, this.selectedTimeSlot).subscribe(() => {
         this.presentReservationAlert();
       });
       // Resetovanje forme

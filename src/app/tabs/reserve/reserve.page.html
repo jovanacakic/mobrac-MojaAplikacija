@@ -61,31 +61,29 @@
 <!--    </ion-item>-->
 
     <ion-item>
-
-        <!-- Grid kontejner -->
-        <ion-grid>
-          <!-- Ponavljanje ion-row tri puta za tri reda -->
-          <ion-row *ngFor="let row of [0, 1, 2]">
-            <!-- Ponavljanje ion-col tri puta za tri kolone po redu -->
-            <ion-col size="4" *ngFor="let col of [0, 1, 2]">
-              <ion-card>
-                <ion-card-header>
-                  <ion-card-title>
-                    Naslov Kartice {{ row * 3 + col + 1 }}
-                  </ion-card-title>
-                </ion-card-header>
-                <ion-card-content>
-                  Sadržaj Kartice {{ row * 3 + col + 1 }}
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+      <ion-grid>
+        <ion-row>
+          <!-- Prikazuje jednu karticu po slotu -->
+          <ion-col size="4" *ngFor="let slot of timeSlots">
+            <ion-card >
+              <ion-card-header>
+                <ion-card-title>
+                  Termin: {{ slot.startTime }} - {{ slot.endTime }}
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                Status: {{ slot.status }}<br>
+              </ion-card-content>
+              <ion-button fill="clear" (click)="selectSlot(slot)" [class.selected]="selectedTimeSlot === slot">{{ selectedTimeSlot === slot ? 'Izabran' : 'Izaberi' }}</ion-button>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-item>
 
     <ion-row>
       <ion-col>
-        <ion-button type="submit" expand="block" [disabled]="!reserveForm.form.valid">Reserve</ion-button>
+        <ion-button type="submit" expand="block" [disabled]="!selectedTimeSlot || !reserveForm.form.valid">Reserve</ion-button>
       </ion-col>
     </ion-row>
   </form>
