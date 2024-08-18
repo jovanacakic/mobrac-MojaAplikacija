@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../auth/auth.service";
-import {Observable, of, switchMap} from "rxjs";
+import {catchError, map, Observable, of, switchMap, take} from "rxjs";
 
 interface TimeSlot {
   index: number
@@ -128,6 +128,84 @@ export class AdminService {
 
         const path = `${this.baseUrl}/appointments/${yearKey}/${monthKey}.json?auth=${token}`;
         return this.http.patch(path, appointments[yearKey][monthKey]);
+      })
+    );
+  }
+
+  getAllBookedAppointments(): Observable<any[]> {
+    return this.authService.token.pipe(
+      switchMap(token => {
+        const url = `${this.baseUrl}/appointments.json?auth=${token}`;
+        return this.http.get<any>(url).pipe(
+          map(responseData => {
+            const bookedAppointments: any[] = [];
+            if (responseData) {
+              Object.keys(responseData).forEach(year => {
+                Object.keys(responseData[year]).forEach(month => {
+                  Object.keys(responseData[year][month]).forEach(day => {
+                    // Uzeti niz timeSlots za dati dan
+                    const timeSlots = responseData[year][month][day]['timeSlots'];
+                    // Proveriti da li postoji niz timeSlots
+                    if (timeSlots && Array.isArray(timeSlots)) {
+                      // Proći kroz svaki time slot
+                      timeSlots.forEach((slot, index) => {
+                        if (slot.status === 'booked') {
+                          bookedAppointments.push({
+                            year,
+                            month,
+                            day,
+                            slot,
+                            index
+                          });
+                        }
+                      });
+                    }
+                  });
+                });
+              });
+            }
+            return bookedAppointments;
+          })
+        );
+      })
+    );
+  }
+
+  getUser(userID: string) {
+    return this.authService.token.pipe(
+      switchMap(token => {
+        // Direktno dohvatite korisnika po ID-u
+        const url = `${this.baseUrl}/users/${userID}.json?auth=${token}`;
+        return this.http.get<any>(url).pipe(
+          take(1),
+          // map(user => {
+          //   // Ako korisnik ne postoji ili nema potrebne atribute, vratite neku podrazumevanu vrednost ili obavestite o grešci
+          //   if (!user || !user.firstName || !user.lastName) {
+          //     return 'User not found or incomplete data';
+          //   }
+          //   console.log(user);
+          //   //return user.firstName + ' ' + user.lastName;
+          // }),
+          catchError(error => {
+            // Upravljanje greškama, npr. logovanje i vraćanje pristojne poruke
+            console.error('Error fetching user:', error);
+            return of('Error fetching user');
+          })
+        );
+      })
+    );
+  }
+
+  approveTimeSlot(year: string, month: string, day: string, slotIndex: number): Observable<any> {
+    // const url = `${this.baseUrl}/appointments/${datePath}/timeSlots/${slotIndex}.json`;
+    // return this.http.patch(url, { status: 'approved' }); // Pretpostavlja se da koristite PATCH za ažuriranje
+    return this.authService.token.pipe(
+      switchMap(token => {
+        // Ažuriranje time slota
+        const formattedMonth = month.padStart(2, '0');
+        const formattedDay = day.padStart(2, '0');
+        const slotUpdateUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments/${year}/${formattedMonth}/${formattedDay}/timeSlots/${slotIndex}.json?auth=${token}`;
+        return this.http.patch(slotUpdateUrl, {status: 'approved'});
       })
     );
   }

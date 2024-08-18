@@ -1,0 +1,6 @@
+.full-width-card {
+  width: 100%;           /* Postavlja širinu kartice na 100% */
+  margin: 0;             /* Uklanja sve margine */
+  --ion-safe-area-top: 0;   /* Uklanja sigurnosni prostor na vrhu ako je potrebno */
+  --ion-safe-area-bottom: 0; /* Uklanja sigurnosni prostor na dnu ako je potrebno */
+}
