@@ -3,6 +3,7 @@ import {Reservation} from "../reservation.model";
 import {Subscription} from 'rxjs';
 import {ReservationService} from "../../services/reservation.service";
 import {AlertController} from "@ionic/angular";
+import {TimeSlot} from "../time-slot.model";
 
 @Component({
   selector: 'app-my-appointments',
@@ -30,11 +31,13 @@ export class MyAppointmentsPage implements OnInit {
     }
   }
 
-  onCancelReservation(reservationId: string) {
-    this.presentConfirmAlert(reservationId);
+  onCancelReservation(reservationId: string, date: string | undefined, timeSlot: TimeSlot) {
+
+    // @ts-ignore
+    this.presentConfirmAlert(reservationId, date, timeSlot);
   }
 
-  async presentConfirmAlert(reservationId: string) {
+  async presentConfirmAlert(reservationId: string, date: string, timeSlot: TimeSlot) {
     const alert = await this.alertCtrl.create({
       header: 'Confirm Cancellation',
       message: 'Are you sure you want to delete this reservation?',
@@ -50,7 +53,7 @@ export class MyAppointmentsPage implements OnInit {
           text: 'Yes',
           handler: () => {
             // Korisnik je potvrdio otkazivanje
-            this.reservationService.deleteReservation(reservationId).subscribe(
+            this.reservationService.deleteReservation(reservationId, date, timeSlot).subscribe(
               () => {
                 this.reservations = this.reservations.filter(res => res.id !== reservationId);
                 this.presentCancellationSuccessAlert();

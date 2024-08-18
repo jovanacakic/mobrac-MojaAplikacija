@@ -183,19 +183,32 @@ export class ReservationService {
       tap(() => {
         this._reservations.next([...this._reservations.getValue(), newReservation]);
       })
+
     );
   }
 
-  deleteReservation(reservationId: string) {
+  deleteReservation(reservationId: string, date: string, timeSlot: TimeSlot) {
     return this.authService.token.pipe(
+      take(1),
       switchMap(token => {
-        return this.http.delete(
-          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations/${reservationId}.json?auth=${token}`
+        // Prvo brisanje rezervacije
+        const deleteUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations/${reservationId}.json?auth=${token}`;
+        return this.http.delete(deleteUrl).pipe(
+          tap(() => {
+            // Ažuriranje lokalnog stanja rezervacija
+            const updatedReservations = this._reservations.getValue().filter(r => r.id !== reservationId);
+            this._reservations.next(updatedReservations);
+          }),
+          map(() => token)  //ovo prosledjuje token dalje u lanac
         );
       }),
-      tap(() => {
-        const updatedReservations = this._reservations.getValue().filter(r => r.id !== reservationId);
-        this._reservations.next(updatedReservations);
+      switchMap(token => {
+        // Ažuriranje time slota
+        const [year, month, day] = date.split('-');
+        const formattedMonth = month.padStart(2, '0');
+        const formattedDay = day.padStart(2, '0');
+        const slotUpdateUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments/${year}/${formattedMonth}/${formattedDay}/timeSlots/${timeSlot.index}.json?auth=${token}`;
+        return this.http.patch(slotUpdateUrl, { status: 'available', userId: null });
       })
     );
   }
@@ -224,8 +237,11 @@ export class ReservationService {
   getTimeSlotsByDate(date: string): Observable<{ date: string, timeSlots: TimeSlot[] } | null> {
     return this.authService.token.pipe(
       switchMap(token => {
-        // Razdvajanje datuma na komponente i formatiranje sa vodećom nulom ako je potrebno
+
         const [year, month, day] = date.split('-').map(num => num.padStart(2, '0'));
+
+        //const dayKey = `${(day + 1).toString().padStart(2, '0')}`;
+        //const dayKey = parseInt(day,10);
 
         // Prilagođavanje URL-a da uključi godinu, mesec i dan
         const url = `${this.baseUrl}/appointments/${year}/${month}/${day}.json?auth=${token}`;

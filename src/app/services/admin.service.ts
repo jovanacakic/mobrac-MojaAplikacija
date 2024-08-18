@@ -40,7 +40,7 @@ export class AdminService {
         //unapred sam definisala kljuceve
         const monthKey = `${(month + 1).toString().padStart(2, '0')}`; // dodaje da umesto 8 bude 08
         const yearKey = `${year}`;
-        const dayKey = `${day}`;
+        const dayKey = `${day.toString().padStart(2, '0')}`;
 
         const date = new Date(year, month, day);
         if (date.getDay() !== 0 && date.getDay() !== 6) { //vikend
@@ -90,7 +90,6 @@ export class AdminService {
 
         for (let day = startDate; day <= endDate; day.setDate(day.getDate() + 1)) {
           if (day.getDay() !== 0 && day.getDay() !== 6) { //bez vikenda
-            const dayKey = `${day.getDate()}`;
             const timeSlots: TimeSlot[] = [];
             let index = 0;
 
@@ -114,6 +113,7 @@ export class AdminService {
             }
 
             const monthKey = `${(month + 1).toString().padStart(2, '0')}`;
+            const dayKey = `${day.getDate().toString().padStart(2, '0')}`;
             const yearKey = `${year}`;
 
             if (!appointments[yearKey]) {
