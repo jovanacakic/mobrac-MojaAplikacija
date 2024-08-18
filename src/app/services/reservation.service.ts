@@ -4,6 +4,7 @@ import {Reservation} from "../tabs/reservation.model";
 import {BehaviorSubject, Observable, map, switchMap, take, tap} from "rxjs";
 import {AuthService} from "../auth/auth.service";
 import {TimeSlot} from '../tabs/time-slot.model';
+import {time} from "ionicons/icons";
 
 @Injectable({
   providedIn: 'root'
@@ -85,7 +86,54 @@ export class ReservationService {
         })
       );
     }*/
-  addReservation(visaType: string | undefined, timeSlot: TimeSlot) {
+  // addReservation(visaType: string | undefined, timeSlot: TimeSlot, date: string | undefined) {
+  //   let generatedId: string;
+  //   let newReservation: Reservation;
+  //
+  //   return this.authService.token.pipe(
+  //     take(1),
+  //     switchMap(token => {
+  //       return this.authService.userId.pipe(
+  //         take(1),
+  //         map(userId => {
+  //           if (!userId || !token) {
+  //             throw new Error('User not authenticated!');
+  //           }
+  //
+  //            newReservation = {
+  //             id: '',
+  //             visaType: visaType,
+  //             appointmentDate: date,
+  //             timeSlot: {
+  //               id: timeSlot.id,
+  //               status: timeSlot.status,
+  //               date: timeSlot.date,
+  //               startTime: timeSlot.startTime,
+  //               endTime: timeSlot.endTime,
+  //               isAvailable: timeSlot.isAvailable
+  //             },
+  //             userId: userId
+  //           };
+  //
+  //           return {userId, token};
+  //         }),
+  //         switchMap(({token}) => {
+  //           console.log("Sending reservation data:", newReservation);
+  //
+  //           const url = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations.json?auth=${token}`;
+  //           return this.http.post<{ name: string }>(url, newReservation);
+  //         })
+  //       );
+  //     }),
+  //     tap(resData => {
+  //       generatedId = resData.name; // Firebase vraća generisani ID u 'name'
+  //       newReservation.id = generatedId;
+  //       this._reservations.next([...this._reservations.getValue(), newReservation]);
+  //     })
+  //   );
+  // }
+
+  addReservation(visaType: string | undefined, timeSlot: TimeSlot, date: string | undefined) {
     let generatedId: string;
     let newReservation: Reservation;
 
@@ -99,34 +147,40 @@ export class ReservationService {
               throw new Error('User not authenticated!');
             }
 
-             newReservation = {
+            newReservation = {
               id: '',
               visaType: visaType,
-              appointmentDate: timeSlot.date,
+              appointmentDate: date,
               timeSlot: {
                 id: timeSlot.id,
                 status: timeSlot.status,
                 date: timeSlot.date,
                 startTime: timeSlot.startTime,
                 endTime: timeSlot.endTime,
-                isAvailable: timeSlot.isAvailable
+                isAvailable: timeSlot.isAvailable,
+                index: timeSlot.index,
               },
               userId: userId
             };
 
-            return {userId, token};
+            return {newReservation, token};
           }),
           switchMap(({token}) => {
             console.log("Sending reservation data:", newReservation);
-
             const url = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations.json?auth=${token}`;
             return this.http.post<{ name: string }>(url, newReservation);
+          }),
+          switchMap(resData => {
+            generatedId = resData.name; // Firebase vraća generisani ID u 'name'
+            newReservation.id = generatedId;
+
+            // @ts-ignore
+            const slotUpdateUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments/${date.split('-')[0]}/${date.split('-')[1]}/${date.split('-')[2]}/timeSlots/${timeSlot.index}.json?auth=${token}`;
+            return this.http.patch(slotUpdateUrl, { status: 'booked', userId: newReservation.userId });
           })
         );
       }),
-      tap(resData => {
-        generatedId = resData.name; // Firebase vraća generisani ID u 'name'
-        newReservation.id = generatedId;
+      tap(() => {
         this._reservations.next([...this._reservations.getValue(), newReservation]);
       })
     );
@@ -146,11 +200,33 @@ export class ReservationService {
     );
   }
 
+  // getTimeSlotsByDate(date: string): Observable<{ date: string, timeSlots: TimeSlot[] } | null> {
+  //   return this.authService.token.pipe(
+  //     switchMap(token => {
+  //       // Razdvajanje datuma na komponente
+  //       const [year, month, day] = date.split('-').map(Number);
+  //       // Prilagođavanje URL-a da uključi godinu, mesec i dan
+  //       const url = `${this.baseUrl}/appointments/${year}/${month}/${day}.json?auth=${token}`;
+  //       return this.http.get<{ timeSlots: TimeSlot[] }>(url).pipe(
+  //         map(responseData => {
+  //           if (responseData && responseData.timeSlots) {
+  //             return {
+  //               date: date,
+  //               timeSlots: responseData.timeSlots.filter(slot => slot.status === 'available')
+  //             };
+  //           }
+  //           return null;
+  //         })
+  //       );
+  //     })
+  //   );
+  // }
   getTimeSlotsByDate(date: string): Observable<{ date: string, timeSlots: TimeSlot[] } | null> {
     return this.authService.token.pipe(
       switchMap(token => {
-        // Razdvajanje datuma na komponente
-        const [year, month, day] = date.split('-').map(Number);
+        // Razdvajanje datuma na komponente i formatiranje sa vodećom nulom ako je potrebno
+        const [year, month, day] = date.split('-').map(num => num.padStart(2, '0'));
+
         // Prilagođavanje URL-a da uključi godinu, mesec i dan
         const url = `${this.baseUrl}/appointments/${year}/${month}/${day}.json?auth=${token}`;
         return this.http.get<{ timeSlots: TimeSlot[] }>(url).pipe(
@@ -167,5 +243,4 @@ export class ReservationService {
       })
     );
   }
-
 }

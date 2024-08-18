@@ -39,7 +39,6 @@ export class AdminCreateAppointmentsPage implements OnInit {
     const selectedMonth = new Date(this.selectedMonth);
     const selectedDate = new Date(this.selectedDate);
 
-
     if (this.wholeMonth) {
       const year = selectedMonth.getFullYear();
       const month = selectedMonth.getMonth();

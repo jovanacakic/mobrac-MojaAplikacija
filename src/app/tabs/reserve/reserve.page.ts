@@ -76,23 +76,10 @@ export class ReservePage implements OnInit {
     }
   }
 
-
-  // onDateChange() {
-  //   if (this.appointmentDate) {
-  //     // Extract date part only (YYYY-MM-DD)
-  //     const selectedDate = this.appointmentDate.split('T')[0];
-  //     console.log("Selected date:", selectedDate);
-  //
-  //     this.reservationService.getTimeSlots(selectedDate).subscribe(slots => {
-  //       console.log("Available slots:", slots);
-  //       this.timeSlots = slots.filter(slot => slot.status == 'available');
-  //     });
-  //   }
-  // }
   onDateChange() {
     if (this.appointmentDate) {
-
-      const selectedDate = this.appointmentDate.split('T')[0];
+      const selectedDate = this.appointmentDate.split('T')[0]; // odsecanje da bude samo datum
+      this.appointmentDate = selectedDate;  // azuriranje
       console.log('Selected date:', selectedDate);
 
       this.reservationService.getTimeSlotsByDate(selectedDate).subscribe(appointment => {
@@ -101,10 +88,11 @@ export class ReservePage implements OnInit {
       });
     }
   }
+
   onSubmit(visaType: string | undefined) {
     if (this.selectedTimeSlot) {
 
-      this.reservationService.addReservation(visaType, this.selectedTimeSlot).subscribe(() => {
+      this.reservationService.addReservation(visaType, this.selectedTimeSlot, this.appointmentDate).subscribe(() => {
         this.presentReservationAlert();
       });
       // Resetovanje forme

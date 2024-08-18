@@ -4,6 +4,7 @@ import {AuthService} from "../auth/auth.service";
 import {Observable, of, switchMap} from "rxjs";
 
 interface TimeSlot {
+  index: number
   startTime: string;
   endTime: string;
   status: string;
@@ -37,27 +38,32 @@ export class AdminService {
     return this.authService.token.pipe(
       switchMap(token => {
         //unapred sam definisala kljuceve
-        const monthKey = `${month + 1}`;
+        const monthKey = `${(month + 1).toString().padStart(2, '0')}`; // dodaje da umesto 8 bude 08
         const yearKey = `${year}`;
         const dayKey = `${day}`;
 
         const date = new Date(year, month, day);
         if (date.getDay() !== 0 && date.getDay() !== 6) { //vikend
           const timeSlots: TimeSlot[] = [];
+          let index = 0;
 
           for (let hour = 9; hour <= 15; hour++) {
             timeSlots.push({
+              index: index,
               startTime: `${hour < 10 ? '0' + hour : hour}:00`,
               endTime: `${hour < 10 ? '0' + hour : hour}:30`,
               status: 'available',
               userId: null
             });
+            index += 1;
             timeSlots.push({
+              index: index,
               startTime: `${hour < 10 ? '0' + hour : hour}:30`,
               endTime: `${hour + 1 < 10 ? '0' + (hour + 1) : hour + 1}:00`,
               status: 'available',
               userId: null
             });
+            index += 1;
           }
 
           //struktura
@@ -76,7 +82,7 @@ export class AdminService {
     return this.authService.token.pipe(
       switchMap(token => {
         const appointments: Record<string, YearAppointments> = {};
-        const monthKey = `${month + 1}`;
+        const monthKey = `${(month + 1).toString().padStart(2, '0')}`;
         const yearKey = `${year}`;
 
         const startDate = new Date(year, month, 1);
@@ -86,23 +92,28 @@ export class AdminService {
           if (day.getDay() !== 0 && day.getDay() !== 6) { //bez vikenda
             const dayKey = `${day.getDate()}`;
             const timeSlots: TimeSlot[] = [];
+            let index = 0;
 
             for (let hour = 9; hour <= 15; hour++) {
               timeSlots.push({
+                index: index,
                 startTime: `${hour < 10 ? '0' + hour : hour}:00`,
                 endTime: `${hour < 10 ? '0' + hour : hour}:30`,
                 status: 'available',
                 userId: null
               });
+              index += 1;
               timeSlots.push({
+                index: index,
                 startTime: `${hour < 10 ? '0' + hour : hour}:30`,
                 endTime: `${hour + 1 < 10 ? '0' + (hour + 1) : hour + 1}:00`,
                 status: 'available',
                 userId: null
               });
+              index += 1;
             }
 
-            const monthKey = `${month + 1}`;
+            const monthKey = `${(month + 1).toString().padStart(2, '0')}`;
             const yearKey = `${year}`;
 
             if (!appointments[yearKey]) {
