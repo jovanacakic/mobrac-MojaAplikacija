@@ -209,4 +209,17 @@ export class AdminService {
       })
     );
   }
+  declineTimeSlot(year: string, month: string, day: string, slotIndex: number): Observable<any> {
+    // const url = `${this.baseUrl}/appointments/${datePath}/timeSlots/${slotIndex}.json`;
+    // return this.http.patch(url, { status: 'approved' }); // Pretpostavlja se da koristite PATCH za ažuriranje
+    return this.authService.token.pipe(
+      switchMap(token => {
+        // Ažuriranje time slota
+        const formattedMonth = month.padStart(2, '0');
+        const formattedDay = day.padStart(2, '0');
+        const slotUpdateUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments/${year}/${formattedMonth}/${formattedDay}/timeSlots/${slotIndex}.json?auth=${token}`;
+        return this.http.patch(slotUpdateUrl, {status: 'available', userId: null });
+      })
+    );
+  }
 }

@@ -100,6 +100,45 @@ export class AdminApproveAppointmentsPage implements OnInit {
     await alert.present();
   }
 
+  async presentDeclinationAlert(appointment: any) {
+    const alert = await this.alertCtrl.create({
+      header: 'Confirm Declination',
+      message: 'Are you sure you want to decline this appointment?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            // Korisnik je odustao od odobravanja
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            // Ažurirajte UI odmah
+            appointment.slot.status = 'available';
+            // Pozovite servis da ažurira podatke na serveru
+            return this.adminService.declineTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).subscribe(
+              () => {
+                this.removeAppointment(appointment.year, appointment.month, appointment.day, appointment.index);
+                this.fetchUserNames();
+                this.presentApprovalSuccessAlert();
+              },
+              (error) => {
+                // U slučaju greške, vratite originalni status ili obavestite korisnika
+                appointment.slot.status = 'booked';
+                this.presentErrorAlert();
+                console.error('Error declining appointment:', error);
+              }
+            );
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
   async presentApprovalSuccessAlert() {
     const alert = await this.alertCtrl.create({
       header: 'Cancellation Successful',
@@ -137,6 +176,10 @@ export class AdminApproveAppointmentsPage implements OnInit {
 
   onApproveAppointment(bookedAppointment: any) {
     this.presentApprovalAlert(bookedAppointment);
+  }
+
+  onDeclineAppointment(bookedAppointment: any) {
+    this.presentDeclinationAlert(bookedAppointment);
   }
 
   removeAppointment(year: string, month: string, day: string, index: number) {
