@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Reservation} from "../tabs/reservation.model";
-import {BehaviorSubject, Observable, map, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, Observable, map, switchMap, take, tap, catchError} from "rxjs";
 import {AuthService} from "../auth/auth.service";
 import {TimeSlot} from '../tabs/time-slot.model';
 
@@ -260,15 +260,53 @@ export class ReservationService {
       })
     );
   }
+  // updateReservationToApproved(year: any, month: any, day: any, slot: any): Observable<any> {
+  //   return this.authService.token.pipe(
+  //     switchMap(token => {
+  //       const formattedMonth = month.toString().padStart(2, '0');
+  //       const formattedDay = day.toString().padStart(2, '0');
+  //       // Kreiranje URL-a za ažuriranje specifičnog time slota
+  //       const slotUpdateUrl = `${this.baseUrl}/reservations/${year}/${formattedMonth}/${formattedDay}/timeSlots/${slot.index}.json?auth=${token}`;
+  //       // Ažuriranje statusa time slota na 'approved'
+  //       return this.http.patch(slotUpdateUrl, { status: 'approved', userId: slot.userId });
+  //     })
+  //   );
+  // }
   updateReservationToApproved(year: any, month: any, day: any, slot: any): Observable<any> {
+    const formattedMonth = month.toString().padStart(2, '0');
+    const formattedDay = day.toString().padStart(2, '0');
+    const date = `${year}-${formattedMonth}-${formattedDay}`;
     return this.authService.token.pipe(
+      tap(token => console.log("Token:", token)),
+      take(1),
       switchMap(token => {
-        const formattedMonth = month.toString().padStart(2, '0');
-        const formattedDay = day.toString().padStart(2, '0');
-        // Kreiranje URL-a za ažuriranje specifičnog time slota
-        const slotUpdateUrl = `${this.baseUrl}/reservations/${year}/${formattedMonth}/${formattedDay}/timeSlots/${slot.index}.json?auth=${token}`;
-        // Ažuriranje statusa time slota na 'approved'
-        return this.http.patch(slotUpdateUrl, { status: 'approved', userId: slot.userId });
+        const reservationsUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations.json?auth=${token}&orderBy="appointmentDate"&equalTo="${date}"`;
+        console.log("URL: ", reservationsUrl);
+        return this.http.get<{ [key: string]: any }>(reservationsUrl).pipe(
+          switchMap(reservations => {
+            console.log(reservations);
+            if (!reservations) {
+              throw new Error('No reservations found for the given date');
+            }
+            const updates: any = {};
+            Object.keys(reservations).forEach(key => {
+              const reservation = reservations[key];
+              if (reservation.timeSlot.startTime === slot.startTime) {
+                const updatePath = `/reservations/${key}/timeSlot/status.json`;
+                updates[updatePath] = 'approved';
+              }
+            });
+            if (Object.keys(updates).length > 0) {
+              return this.http.patch(`${this.baseUrl}/.json?auth=${token}`, updates);
+            } else {
+              throw new Error('No matching slot found');
+            }
+          })
+        );
+      }),
+      catchError(error => {
+        console.error("Greška u RxJS lancu:", error);
+        throw error;
       })
     );
   }
