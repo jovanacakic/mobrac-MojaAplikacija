@@ -72,6 +72,7 @@ export class ReservePage implements OnInit {
         console.log("Available slots:", slots);
         // @ts-ignore
         this.timeSlots = slots?.timeSlots;
+        //this.timeSlots.date = selectedDate;
       });
     }
   }
@@ -92,7 +93,8 @@ export class ReservePage implements OnInit {
   onSubmit(visaType: string | undefined) {
     if (this.selectedTimeSlot) {
 
-      this.reservationService.addReservation(visaType, this.selectedTimeSlot, this.appointmentDate).subscribe(() => {
+      this.selectedTimeSlot.status = 'booked';
+      this.reservationService.addReservation(visaType, this.appointmentDate, this.selectedTimeSlot).subscribe(() => {
         this.presentReservationAlert();
       });
       // Resetovanje forme

@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {AuthService} from "../../auth/auth.service";
 import {AlertController} from "@ionic/angular";
+import {User} from "../../auth/user.model";
 
 @Component({
   selector: 'app-profile',
@@ -10,6 +11,7 @@ import {AlertController} from "@ionic/angular";
 })
 export class ProfilePage implements OnInit {
 
+  //user: User;
   firstName: string | undefined;
   lastName: string | undefined;
   username: string | undefined;

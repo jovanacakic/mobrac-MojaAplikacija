@@ -4,7 +4,6 @@ import {Reservation} from "../tabs/reservation.model";
 import {BehaviorSubject, Observable, map, switchMap, take, tap} from "rxjs";
 import {AuthService} from "../auth/auth.service";
 import {TimeSlot} from '../tabs/time-slot.model';
-import {time} from "ionicons/icons";
 
 @Injectable({
   providedIn: 'root'
@@ -133,7 +132,7 @@ export class ReservationService {
   //   );
   // }
 
-  addReservation(visaType: string | undefined, timeSlot: TimeSlot, date: string | undefined) {
+  addReservation(visaType: string | undefined, date: string | undefined, timeSlot: TimeSlot) {
     let generatedId: string;
     let newReservation: Reservation;
 
@@ -187,7 +186,7 @@ export class ReservationService {
     );
   }
 
-  deleteReservation(reservationId: string, date: string, timeSlot: TimeSlot) {
+  deleteReservation(reservationId: string, date:string, timeSlot: TimeSlot) {
     return this.authService.token.pipe(
       take(1),
       switchMap(token => {
@@ -203,7 +202,8 @@ export class ReservationService {
         );
       }),
       switchMap(token => {
-        // Ažuriranje time slota
+        //Ažuriranje time slota u appointments tabeli
+        // @ts-ignore stavljamo jer ce biti time slota
         const [year, month, day] = date.split('-');
         const formattedMonth = month.padStart(2, '0');
         const formattedDay = day.padStart(2, '0');
@@ -248,14 +248,27 @@ export class ReservationService {
         return this.http.get<{ timeSlots: TimeSlot[] }>(url).pipe(
           map(responseData => {
             if (responseData && responseData.timeSlots) {
+              console.log("CONSOLE LOG U GETTIMESLOTSBYDATE "+responseData.timeSlots);
               return {
                 date: date,
-                timeSlots: responseData.timeSlots.filter(slot => slot.status === 'available')
+                timeSlots: responseData.timeSlots.filter(slot => slot.status === 'available'),
               };
             }
             return null;
           })
         );
+      })
+    );
+  }
+  updateReservationToApproved(year: any, month: any, day: any, slot: any): Observable<any> {
+    return this.authService.token.pipe(
+      switchMap(token => {
+        const formattedMonth = month.toString().padStart(2, '0');
+        const formattedDay = day.toString().padStart(2, '0');
+        // Kreiranje URL-a za ažuriranje specifičnog time slota
+        const slotUpdateUrl = `${this.baseUrl}/reservations/${year}/${formattedMonth}/${formattedDay}/timeSlots/${slot.index}.json?auth=${token}`;
+        // Ažuriranje statusa time slota na 'approved'
+        return this.http.patch(slotUpdateUrl, { status: 'approved', userId: slot.userId });
       })
     );
   }

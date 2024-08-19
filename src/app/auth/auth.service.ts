@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, map, switchMap, tap} from "rxjs";
+import {BehaviorSubject, map, switchMap, take, tap} from "rxjs";
 import {User} from "./user.model";
 import {environment} from "../../environments/environment";
 
@@ -155,6 +155,7 @@ export class AuthService {
 
   getUserProfile() {
     return this.userId.pipe(
+      take(1),
       switchMap(userId => {
         if (!userId) {
           throw new Error('User not found');

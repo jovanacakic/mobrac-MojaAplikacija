@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {AdminService} from "../../services/admin.service";
 import {map, Observable, take} from "rxjs";
 import {AlertController} from "@ionic/angular";
+import {ReservationService} from "../../services/reservation.service";
 
 @Component({
   selector: 'app-admin-approve-appointments',
@@ -12,7 +13,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
 
   bookedAppointments: any[] = [];
 
-  constructor(private adminService: AdminService, private alertCtrl: AlertController) {
+  constructor(private adminService: AdminService, private alertCtrl: AlertController, private reservationService: ReservationService) {
   }
 
 
@@ -82,6 +83,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
             return this.adminService.approveTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).subscribe(
               () => {
                 this.removeAppointment(appointment.year, appointment.month, appointment.day, appointment.index);
+                this.reservationService.updateReservationToApproved(appointment.year, appointment.month, appointment.day,appointment.slot);
                 this.fetchUserNames();
                 this.presentApprovalSuccessAlert();
               },
@@ -122,7 +124,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
               () => {
                 this.removeAppointment(appointment.year, appointment.month, appointment.day, appointment.index);
                 this.fetchUserNames();
-                this.presentApprovalSuccessAlert();
+                this.presentDeclinationSuccessAlert();
               },
               (error) => {
                 // U slučaju greške, vratite originalni status ili obavestite korisnika
@@ -141,8 +143,18 @@ export class AdminApproveAppointmentsPage implements OnInit {
 
   async presentApprovalSuccessAlert() {
     const alert = await this.alertCtrl.create({
-      header: 'Cancellation Successful',
-      message: 'Your reservation has been successfully cancelled.',
+      header: 'Approval Successful',
+      message: 'The reservation has been successfully approved.',
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
+  async presentDeclinationSuccessAlert() {
+    const alert = await this.alertCtrl.create({
+      header: 'Declination Successful',
+      message: 'Your reservation has been successfully declined.',
       buttons: ['OK']
     });
 
