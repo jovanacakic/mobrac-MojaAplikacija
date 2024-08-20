@@ -125,22 +125,31 @@ export class AdminApproveAppointmentsPage implements OnInit {
           text: 'Yes',
           handler: () => {
             // Ažurirajte UI odmah
-            appointment.slot.status = 'available';
+            appointment.slot.status = 'declined';
             // Pozovite servis da ažurira podatke na serveru
-            return this.adminService.declineTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).subscribe(
-              () => {
+            this.adminService.declineTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).pipe(
+              switchMap(() => {
+                // Once the time slot is approved, then update the reservation to approved
+                return this.adminService.updateReservationToDeclined(appointment.year, appointment.month, appointment.day, appointment.slot);
+              }),
+              tap(() => {
+                // Remove the appointment from the list and fetch user names only after both updates are successful
                 this.removeAppointmentFromListInHtml(appointment.year, appointment.month, appointment.day, appointment.index);
                 this.fetchUserNames();
+              })
+            ).subscribe(
+              () => {
                 this.presentDeclinationSuccessAlert();
               },
-              (error) => {
-                // U slučaju greške, vratite originalni status ili obavestite korisnika
-                appointment.slot.status = 'booked';
+              error => {
+                // Handle any errors that occur during the entire process
+                appointment.slot.status = 'booked'; // Revert the status in UI if there's an error
                 this.presentErrorAlert();
-                console.error('Error declining appointment:', error);
+                console.error('Error during declination process:', error);
               }
             );
           }
+
         }
       ]
     });

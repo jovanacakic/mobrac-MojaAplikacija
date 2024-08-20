@@ -254,4 +254,35 @@ export class AdminService {
       })
     );
   }
+  updateReservationToDeclined(year: any, month: any, day: any, slot: any): Observable<any> {
+    const formattedMonth = month.toString().padStart(2, '0');
+    const formattedDay = day.toString().padStart(2, '0');
+    const date = `${year}-${formattedMonth}-${formattedDay}`;
+    return this.authService.token.pipe(
+      take(1),
+      switchMap(token => {
+        const reservationsUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations.json?auth=${token}&orderBy="appointmentDate"&equalTo="${date}"`;
+        return this.http.get<{ [key: string]: any }>(reservationsUrl).pipe(
+          map(reservations => {
+            if (!reservations) {
+              throw new Error('No reservations found for the given date');
+            }
+            const reservationKey = Object.keys(reservations).find(key => reservations[key].timeSlot.startTime === slot.startTime);
+            if (!reservationKey) {
+              throw new Error('No matching slot found');
+            }
+            return { key: reservationKey, token: token };
+          }),
+          switchMap(({ key, token }) => {
+            const updatePath = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations/${key}/timeSlot.json?auth=${token}`;
+            return this.http.patch(updatePath, { status: 'declined' });
+          })
+        );
+      }),
+      catchError(error => {
+        console.error("Greška u RxJS lancu:", error);
+        return throwError(() => new Error('Update failed: ' + error));
+      })
+    );
+  }
 }
