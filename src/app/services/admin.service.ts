@@ -152,6 +152,7 @@ export class AdminService {
                       timeSlots.forEach((slot, index) => {
                         if (slot.status === 'booked') {
                           bookedAppointments.push({
+                            visaType: slot.visaType,
                             year,
                             month,
                             day,

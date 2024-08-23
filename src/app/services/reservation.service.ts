@@ -175,7 +175,7 @@ export class ReservationService {
 
             // @ts-ignore
             const slotUpdateUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments/${date.split('-')[0]}/${date.split('-')[1]}/${date.split('-')[2]}/timeSlots/${timeSlot.index}.json?auth=${token}`;
-            return this.http.patch(slotUpdateUrl, { status: 'booked', userId: newReservation.userId });
+            return this.http.patch(slotUpdateUrl, { status: 'booked', userId: newReservation.userId, visaType: visaType });
           })
         );
       }),

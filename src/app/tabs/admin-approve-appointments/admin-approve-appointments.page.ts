@@ -16,20 +16,6 @@ export class AdminApproveAppointmentsPage implements OnInit {
   constructor(private adminService: AdminService, private alertCtrl: AlertController, private reservationService: ReservationService) {
   }
 
-
-  // ngOnInit() {
-  //
-  //   this.adminService.getAllBookedAppointments().subscribe(
-  //     (appointments) => {
-  //       this.bookedAppointments = appointments;
-  //       console.log(this.bookedAppointments);
-  //     },
-  //     error => {
-  //       console.error('Error fetching booked appointments:', error);
-  //     }
-  //   );
-  // }
-
   userNames: { [userId: string]: string } = {}; // Skladištenje korisničkih imena po userID
 
 
@@ -37,7 +23,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
     this.adminService.getAllBookedAppointments().subscribe(
       (appointments) => {
         this.bookedAppointments = appointments;
-        this.fetchUserNames(); // Poziva metodu za dohvatanje korisničkih imena
+        this.fetchUserNames(); //iz baze citamo korisnicka imena
       },
       error => {
         console.error('Error fetching booked appointments:', error);
