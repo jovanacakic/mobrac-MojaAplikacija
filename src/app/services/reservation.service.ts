@@ -236,6 +236,7 @@ export class ReservationService {
   // }
   getTimeSlotsByDate(date: string): Observable<{ date: string, timeSlots: TimeSlot[] } | null> {
     return this.authService.token.pipe(
+      take(1), //dodala da ne bi bilo gressaka kad se logout proba probic
       switchMap(token => {
 
         const [year, month, day] = date.split('-').map(num => num.padStart(2, '0'));
@@ -243,7 +244,6 @@ export class ReservationService {
         //const dayKey = `${(day + 1).toString().padStart(2, '0')}`;
         //const dayKey = parseInt(day,10);
 
-        // Prilagođavanje URL-a da uključi godinu, mesec i dan
         const url = `${this.baseUrl}/appointments/${year}/${month}/${day}.json?auth=${token}`;
         return this.http.get<{ timeSlots: TimeSlot[] }>(url).pipe(
           map(responseData => {

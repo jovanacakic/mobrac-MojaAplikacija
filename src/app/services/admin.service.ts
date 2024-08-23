@@ -134,6 +134,7 @@ export class AdminService {
 
   getAllBookedAppointments(): Observable<any[]> {
     return this.authService.token.pipe(
+      take(1), //dodato inace izbacuje exception
       switchMap(token => {
         const url = `${this.baseUrl}/appointments.json?auth=${token}`;
         return this.http.get<any>(url).pipe(
@@ -173,6 +174,7 @@ export class AdminService {
 
   getUser(userID: string) {
     return this.authService.token.pipe(
+      take(1),  //dodato inace izbacuje exception
       switchMap(token => {
         // Direktno dohvatite korisnika po ID-u
         const url = `${this.baseUrl}/users/${userID}.json?auth=${token}`;

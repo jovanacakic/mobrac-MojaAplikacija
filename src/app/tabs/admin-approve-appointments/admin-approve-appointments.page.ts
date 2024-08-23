@@ -81,6 +81,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
             appointment.slot.status = 'approved';
             // Pozovite servis da ažurira podatke na serveru
             this.adminService.approveTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).pipe(
+              take(1), // dodato da ne bi izbacio eksepsn
               switchMap(() => {
                 // Once the time slot is approved, then update the reservation to approved
                 return this.adminService.updateReservationToApproved(appointment.year, appointment.month, appointment.day, appointment.slot);
@@ -128,6 +129,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
             appointment.slot.status = 'declined';
             // Pozovite servis da ažurira podatke na serveru
             this.adminService.declineTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).pipe(
+              take(1), // dodala jer izbacuje exception
               switchMap(() => {
                 // Once the time slot is approved, then update the reservation to approved
                 return this.adminService.updateReservationToDeclined(appointment.year, appointment.month, appointment.day, appointment.slot);
