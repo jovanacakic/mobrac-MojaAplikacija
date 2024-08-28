@@ -20,6 +20,7 @@ interface UserData {
   email: string;
   password: string;
   role: string;
+  address: string
   //ionicrole: string;
 }
 
@@ -143,6 +144,7 @@ export class AuthService {
             lastName: user.surname,
             username: user.email,
             role: user.role,
+            address: user.address
           }
         ).subscribe();
       })
@@ -160,7 +162,7 @@ export class AuthService {
         if (!userId) {
           throw new Error('User not found');
         }
-        return this.http.get<{ firstName: string; lastName: string; username: string }>(
+        return this.http.get<{ firstName: string; lastName: string; username: string, address: string }>(
           `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/users/${userId}.json?auth=${this._user.getValue()?.token}`
         );
       })
@@ -171,4 +173,17 @@ export class AuthService {
     return this._isUserAuthenticated;
   }
 
+  updateUserAddress(address: string | undefined) {
+    return this.userId.pipe(
+      take(1),
+      switchMap(userId => {
+        if (!userId) {
+          throw new Error('User not found');
+        }
+        return this.http.put<AuthResponseData>(
+          `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/users/${userId}.json?auth=${this._user.getValue()?.token}`,
+        {address: address});
+      })
+    );
+  }
 }

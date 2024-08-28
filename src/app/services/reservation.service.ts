@@ -170,7 +170,7 @@ export class ReservationService {
             return this.http.post<{ name: string }>(url, newReservation);
           }),
           switchMap(resData => {
-            generatedId = resData.name; // Firebase vraća generisani ID u 'name'
+            generatedId = resData.name;
             newReservation.id = generatedId;
 
             // @ts-ignore
@@ -190,11 +190,9 @@ export class ReservationService {
     return this.authService.token.pipe(
       take(1),
       switchMap(token => {
-        // Prvo brisanje rezervacije
         const deleteUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/reservations/${reservationId}.json?auth=${token}`;
         return this.http.delete(deleteUrl).pipe(
           tap(() => {
-            // Ažuriranje lokalnog stanja rezervacija
             const updatedReservations = this._reservations.getValue().filter(r => r.id !== reservationId);
             this._reservations.next(updatedReservations);
           }),
@@ -202,13 +200,13 @@ export class ReservationService {
         );
       }),
       switchMap(token => {
-        //Ažuriranje time slota u appointments tabeli
+
         // @ts-ignore stavljamo jer ce biti time slota
         const [year, month, day] = date.split('-');
         const formattedMonth = month.padStart(2, '0');
         const formattedDay = day.padStart(2, '0');
         const slotUpdateUrl = `https://mobrac-mojaaplikacija-default-rtdb.europe-west1.firebasedatabase.app/appointments/${year}/${formattedMonth}/${formattedDay}/timeSlots/${timeSlot.index}.json?auth=${token}`;
-        return this.http.patch(slotUpdateUrl, { status: 'available', userId: null });
+        return this.http.patch(slotUpdateUrl, { status: 'available', userId: null, visaType: null });
       })
     );
   }

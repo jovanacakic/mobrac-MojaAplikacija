@@ -97,7 +97,6 @@ export class ReservePage implements OnInit {
       this.reservationService.addReservation(visaType, this.appointmentDate, this.selectedTimeSlot).subscribe(() => {
         this.presentReservationAlert();
       });
-      // Resetovanje forme
       this.visaType = '';
       this.selectedTimeSlot = null;
     }

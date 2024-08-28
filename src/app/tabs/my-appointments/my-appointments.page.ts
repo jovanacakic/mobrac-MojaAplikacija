@@ -32,7 +32,6 @@ export class MyAppointmentsPage implements OnInit {
   }
 
   onCancelReservation(reservationId: string, date: string | undefined, timeSlot: TimeSlot) {
-
     // @ts-ignore
     this.presentConfirmAlert(reservationId, date, timeSlot);
   }
@@ -46,7 +45,6 @@ export class MyAppointmentsPage implements OnInit {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
-            // Korisnik je odustao od otkazivanja
           }
         },
         {

@@ -16,14 +16,14 @@ export class AdminApproveAppointmentsPage implements OnInit {
   constructor(private adminService: AdminService, private alertCtrl: AlertController, private reservationService: ReservationService) {
   }
 
-  userNames: { [userId: string]: string } = {}; // Skladištenje korisničkih imena po userID
+  userNames: { [userId: string]: string } = {};
 
 
   ngOnInit() {
     this.adminService.getAllBookedAppointments().subscribe(
       (appointments) => {
         this.bookedAppointments = appointments;
-        this.fetchUserNames(); //iz baze citamo korisnicka imena
+        this.fetchUserNames();
       },
       error => {
         console.error('Error fetching booked appointments:', error);
@@ -32,7 +32,6 @@ export class AdminApproveAppointmentsPage implements OnInit {
   }
 
   fetchUserNames() {
-    // Dohvatanje korisničkih imena za svaki booked appointment
     this.bookedAppointments.forEach(appointment => {
       if (appointment.slot.userId && !this.userNames[appointment.slot.userId]) {
         this.adminService.getUser(appointment.slot.userId).subscribe(
@@ -57,23 +56,18 @@ export class AdminApproveAppointmentsPage implements OnInit {
           text: 'No',
           role: 'cancel',
           handler: () => {
-            // Korisnik je odustao od odobravanja
           }
         },
         {
           text: 'Yes',
           handler: () => {
-            // Ažurirajte UI odmah
             appointment.slot.status = 'approved';
-            // Pozovite servis da ažurira podatke na serveru
             this.adminService.approveTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).pipe(
               take(1), // dodato da ne bi izbacio eksepsn
               switchMap(() => {
-                // Once the time slot is approved, then update the reservation to approved
                 return this.adminService.updateReservationToApproved(appointment.year, appointment.month, appointment.day, appointment.slot);
               }),
               tap(() => {
-                // Remove the appointment from the list and fetch user names only after both updates are successful
                 this.removeAppointmentFromListInHtml(appointment.year, appointment.month, appointment.day, appointment.index);
                 this.fetchUserNames();
               })
@@ -82,8 +76,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
                 this.presentApprovalSuccessAlert();
               },
               error => {
-                // Handle any errors that occur during the entire process
-                appointment.slot.status = 'booked'; // Revert the status in UI if there's an error
+                appointment.slot.status = 'booked'; //vracam na booked ako dodje do greske
                 this.presentErrorAlert();
                 console.error('Error during approval process:', error);
               }
@@ -105,23 +98,18 @@ export class AdminApproveAppointmentsPage implements OnInit {
           text: 'No',
           role: 'cancel',
           handler: () => {
-            // Korisnik je odustao od odobravanja
           }
         },
         {
           text: 'Yes',
           handler: () => {
-            // Ažurirajte UI odmah
             appointment.slot.status = 'declined';
-            // Pozovite servis da ažurira podatke na serveru
             this.adminService.declineTimeSlot(appointment.year, appointment.month, appointment.day, appointment.index).pipe(
               take(1), // dodala jer izbacuje exception
               switchMap(() => {
-                // Once the time slot is approved, then update the reservation to approved
                 return this.adminService.updateReservationToDeclined(appointment.year, appointment.month, appointment.day, appointment.slot);
               }),
               tap(() => {
-                // Remove the appointment from the list and fetch user names only after both updates are successful
                 this.removeAppointmentFromListInHtml(appointment.year, appointment.month, appointment.day, appointment.index);
                 this.fetchUserNames();
               })
@@ -130,8 +118,7 @@ export class AdminApproveAppointmentsPage implements OnInit {
                 this.presentDeclinationSuccessAlert();
               },
               error => {
-                // Handle any errors that occur during the entire process
-                appointment.slot.status = 'booked'; // Revert the status in UI if there's an error
+                appointment.slot.status = 'booked';
                 this.presentErrorAlert();
                 console.error('Error during declination process:', error);
               }
@@ -177,12 +164,11 @@ export class AdminApproveAppointmentsPage implements OnInit {
 
   approveAppointment(appointment: any) {
     const datePath = `${appointment.year}/${appointment.month}/${appointment.day}`;
-    const slotIndex = appointment.index; // Pretpostavka da imate indeks time slota
+    const slotIndex = appointment.index;
 
     return this.adminService.approveTimeSlot(appointment.year, appointment.month, appointment.day, slotIndex).subscribe({
       next: () => {
         console.log('Appointment approved successfully');
-        // Ovde možete ažurirati UI ili izvršiti dodatne akcije nakon uspešnog odobravanja
       },
       error: (err) => {
         console.error('Failed to approve appointment', err);

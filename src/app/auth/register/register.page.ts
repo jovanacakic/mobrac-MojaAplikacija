@@ -56,7 +56,8 @@ export class RegisterPage implements OnInit {
         password: registerForm.value.password,
         name: registerForm.value.name,
         surname: registerForm.value.surname,
-        role: 'user'
+        role: 'user',
+        address: registerForm.value.address,
       }).subscribe(resData => {
           console.log('Registracija uspela!');
           console.log(resData);

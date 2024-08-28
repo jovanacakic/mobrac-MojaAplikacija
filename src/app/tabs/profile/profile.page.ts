@@ -11,10 +11,12 @@ import {User} from "../../auth/user.model";
 })
 export class ProfilePage implements OnInit {
 
-  //user: User;
+  // @ts-ignore
+  user: User;
   firstName: string | undefined;
   lastName: string | undefined;
   username: string | undefined;
+  address: string | undefined;
   role: string | undefined;
 
   constructor(
@@ -25,9 +27,13 @@ export class ProfilePage implements OnInit {
 
   ngOnInit() {
     this.authService.getUserProfile().subscribe((profile) => {
+      //this.user.name = profile.username;
+      //this.user.surname = profile.lastName;
+      //this.user.email = profile.username;
       this.firstName = profile.firstName;
       this.lastName = profile.lastName;
       this.username = profile.username;
+      this.address = profile.address;
     });
   }
 
@@ -59,5 +65,19 @@ export class ProfilePage implements OnInit {
   logOut() {
     this.authService.logout();
     this.router.navigate(['/log-in']);
+  }
+
+  updateAddress() {
+    this.authService.updateUserAddress(this.address)
+      .subscribe({
+        next: (response) => {
+          console.log('Address updated successfully', response);
+          // Handle success
+        },
+        error: (error) => {
+          console.error('Error updating address', error);
+          // Handle error
+        }
+      });
   }
 }
